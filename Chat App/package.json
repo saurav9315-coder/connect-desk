@@ -1,0 +1,17 @@
+{
+  "name": "chat-app-root",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Simple Group Chat with AI - Monorepo Workspace Root",
+  "scripts": {
+    "dev:backend": "npm --prefix backend run dev",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "build:backend": "npm --prefix backend run build",
+    "build:frontend": "npm --prefix frontend run build",
+    "typecheck:backend": "npm --prefix backend run typecheck",
+    "typecheck:frontend": "npm --prefix frontend run build",
+    "prisma:generate": "npm --prefix backend run prisma:generate",
+    "prisma:migrate": "npm --prefix backend run prisma:migrate",
+    "prisma:studio": "npm --prefix backend run prisma:studio"
+  }
+}

@@ -1,0 +1,130 @@
+@import "tailwindcss";
+
+:root {
+  --bg-main: #071A33;
+  --bg-secondary: #0B2345;
+  --bg-chat: #081D38;
+  --primary-blue: #2563EB;
+  --bright-blue: #3B82F6;
+  --light-blue: #60A5FA;
+  --text-primary: #F8FAFC;
+  --text-secondary: #CBD5E1;
+  --text-muted: #94A3B8;
+  --border-color: #19345A;
+}
+
+@theme inline {
+  --color-bg-main: var(--bg-main);
+  --color-bg-secondary: var(--bg-secondary);
+  --color-bg-chat: var(--bg-chat);
+  --color-primary-blue: var(--primary-blue);
+  --color-bright-blue: var(--bright-blue);
+  --color-light-blue: var(--light-blue);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+  --color-border-color: var(--border-color);
+  --font-sans: var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* Custom Scrollbar - Sleek Dark Blue */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #19345A;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #2563EB;
+}
+
+/* Base Body Styles */
+body {
+  background-color: #071A33;
+  color: #F8FAFC;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Typography polish */
+input, textarea, button, select {
+  font-family: inherit;
+}
+
+/* Prevent iOS tap highlight */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* 3D Animations & Floating Micro-Interactions */
+@keyframes float-slow {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-14px) rotate(3deg);
+  }
+}
+
+@keyframes float-delayed {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(12px) rotate(-3deg);
+  }
+}
+
+@keyframes float-reverse {
+  0%, 100% {
+    transform: translateY(0px) scale(1);
+  }
+  50% {
+    transform: translateY(-10px) scale(1.04);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    opacity: 0.45;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.75;
+    transform: scale(1.06);
+  }
+}
+
+.animate-float-slow {
+  animation: float-slow 8s ease-in-out infinite;
+}
+
+.animate-float-delayed {
+  animation: float-delayed 10s ease-in-out infinite 1.5s;
+}
+
+.animate-float-reverse {
+  animation: float-reverse 7s ease-in-out infinite 0.7s;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 9s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-float-slow,
+  .animate-float-delayed,
+  .animate-float-reverse,
+  .animate-pulse-glow {
+    animation: none !important;
+  }
+}

@@ -1,0 +1,148 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id           String         @id @default(uuid())
+  name         String
+  username     String         @unique
+  email        String         @unique
+  passwordHash String
+  profileImage String?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  refreshTokens RefreshToken[]
+  ownedGroups   Group[]        @relation("GroupOwner")
+  memberships   GroupMember[]
+  messages      Message[]
+  groupPins     GroupPin[]
+  blockedUsers  BlockedUser[]  @relation("BlockerRelation")
+  blockedBy     BlockedUser[]  @relation("BlockedRelation")
+  messageReceipts MessageReceipt[]
+
+  @@index([username])
+  @@index([email])
+}
+
+model RefreshToken {
+  id        String    @id @default(uuid())
+  tokenHash String    @unique
+  userId    String
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([tokenHash])
+  @@index([userId])
+}
+
+model BlockedUser {
+  id        String   @id @default(uuid())
+  blockerId String
+  blocker   User     @relation("BlockerRelation", fields: [blockerId], references: [id], onDelete: Cascade)
+  blockedId String
+  blocked   User     @relation("BlockedRelation", fields: [blockedId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([blockerId, blockedId])
+  @@index([blockerId])
+  @@index([blockedId])
+}
+
+model Group {
+  id          String        @id @default(uuid())
+  name        String
+  description String?
+  image       String?
+  avatarUrl   String?
+  createdBy   String?
+  ownerId     String
+  owner       User          @relation("GroupOwner", fields: [ownerId], references: [id], onDelete: Restrict)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  members     GroupMember[]
+  messages    Message[]
+  groupPins   GroupPin[]
+
+  @@index([ownerId])
+  @@index([createdBy])
+  @@index([updatedAt])
+}
+
+model GroupMember {
+  id       String   @id @default(uuid())
+  groupId  String
+  group    Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  userId   String
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role     String   @default("MEMBER")
+  joinedAt DateTime @default(now())
+
+  @@unique([groupId, userId])
+  @@index([userId])
+  @@index([groupId, role])
+}
+
+model GroupPin {
+  userId   String
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  groupId  String
+  group    Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  pinnedAt DateTime @default(now())
+
+  @@id([userId, groupId])
+  @@index([userId])
+  @@index([groupId])
+}
+
+model Message {
+  id        String   @id @default(uuid())
+  groupId   String
+  group     Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  senderId  String?
+  sender    User?    @relation(fields: [senderId], references: [id], onDelete: SetNull)
+  type      String   @default("TEXT")
+  text      String?
+  content   String?
+  fileUrl   String?
+  fileKey   String?
+  fileName  String?
+  fileSize  Int?
+  mimeType  String?
+  duration  Float?
+  fileInfo  String?
+  isPinned  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  receipts  MessageReceipt[]
+
+  @@index([groupId])
+  @@index([senderId])
+  @@index([createdAt])
+  @@index([groupId, createdAt(sort: Desc)])
+}
+
+model MessageReceipt {
+  id          String    @id @default(uuid())
+  messageId   String
+  message     Message   @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  deliveredAt DateTime?
+  readAt      DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([messageId, userId])
+  @@index([messageId])
+  @@index([userId])
+}
