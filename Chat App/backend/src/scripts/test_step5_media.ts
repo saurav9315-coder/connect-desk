@@ -427,10 +427,32 @@ async function runStep5MediaVerification() {
     // --------------------------------------------------------------------------
     {
       const originalCreate = prisma.message.create;
+      const originalTransaction = prisma.$transaction;
       let simulatedKey: string | null = null;
       // Intercept and inject DB error after file save
       (prisma.message as any).create = async (args: any) => {
         simulatedKey = args.data?.fileKey;
+        throw new Error("Simulated MySQL dead connection after upload");
+      };
+      (prisma as any).$transaction = async (cb: any) => {
+        if (typeof cb === "function") {
+          const fakeTx = {
+            message: {
+              create: async (args: any) => {
+                simulatedKey = args.data?.fileKey;
+                throw new Error("Simulated MySQL dead connection after upload");
+              },
+            },
+            messageReceipt: {
+              createMany: async () => {},
+              findMany: async () => [],
+            },
+            group: {
+              update: async () => {},
+            },
+          };
+          return await cb(fakeTx);
+        }
         throw new Error("Simulated MySQL dead connection after upload");
       };
 
@@ -443,8 +465,9 @@ async function runStep5MediaVerification() {
         body: formData,
       });
 
-      // Restore prisma method
+      // Restore prisma methods
       (prisma.message as any).create = originalCreate;
+      (prisma as any).$transaction = originalTransaction;
 
       // Verify orphaned file was deleted from disk
       let fileExists = true;

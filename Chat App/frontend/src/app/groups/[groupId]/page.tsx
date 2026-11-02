@@ -970,11 +970,14 @@ export default function GroupChatPage({ params }: { params: Promise<{ groupId: s
 
   // Cleanup microphone tracks, audio preview, and recorded voice blob on unmount
   useEffect(() => {
+    const previewAudio = previewAudioRef.current;
+    const mediaStream = mediaStreamRef.current;
+    const recordingTimer = recordingTimerRef.current;
     return () => {
-      if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
-      mediaStreamRef.current?.getTracks().forEach((track) => track.stop());
-      if (previewAudioRef.current) {
-        previewAudioRef.current.pause();
+      if (recordingTimer) clearInterval(recordingTimer);
+      mediaStream?.getTracks().forEach((track) => track.stop());
+      if (previewAudio) {
+        previewAudio.pause();
       }
       if (recordedVoice?.url) {
         URL.revokeObjectURL(recordedVoice.url);

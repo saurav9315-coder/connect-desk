@@ -554,7 +554,28 @@ async function runStep6VoiceVerification() {
       };
 
       const originalCreate = prisma.message.create;
+      const originalTransaction = prisma.$transaction;
       (prisma.message as any).create = async () => {
+        throw new Error("Simulated database constraint or connection drop");
+      };
+      (prisma as any).$transaction = async (cb: any) => {
+        if (typeof cb === "function") {
+          const fakeTx = {
+            message: {
+              create: async () => {
+                throw new Error("Simulated database constraint or connection drop");
+              },
+            },
+            messageReceipt: {
+              createMany: async () => {},
+              findMany: async () => [],
+            },
+            group: {
+              update: async () => {},
+            },
+          };
+          return await cb(fakeTx);
+        }
         throw new Error("Simulated database constraint or connection drop");
       };
 
@@ -571,6 +592,7 @@ async function runStep6VoiceVerification() {
 
       // Restore mocks
       prisma.message.create = originalCreate;
+      (prisma as any).$transaction = originalTransaction;
       storage.deleteFile = originalDelete;
 
       const ok = res.status === 500 && !!cleanedUpKey;
